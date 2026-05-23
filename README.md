@@ -72,5 +72,18 @@ PASSED: 8, FAILED: 0
 ## 생성 산출물
 - `out/` 디렉터리는 빌드/테스트 시 생성되는 산출물이며 Git 추적 대상이 아닙니다.
 
+## 제출 패키징
+- 제출 ZIP에는 `.git/` 메타데이터를 포함하지 않는 것을 권장합니다.
+
+Linux/macOS:
+```bash
+git archive --format=zip --output ex01.zip HEAD
+```
+
+Windows (PowerShell):
+```powershell
+git archive --format=zip --output ex01.zip HEAD
+```
+
 ## 사용자 메시지 언어 정책
 - 현재 사용자 대상 게임 메시지는 영어(English) 고정입니다.
