@@ -3,7 +3,6 @@ package baseball;
 final class BaseballRules {
     static final int DIGIT_COUNT = 3;
     static final int DIGIT_RANGE = 10;
-    static final String INPUT_GUIDE = "Enter three distinct digits. Examples: 123, 1 2 3, 1,2,3 / Quit: q, quit";
 
     static void validate() {
         if (DIGIT_COUNT <= 0) {

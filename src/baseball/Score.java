@@ -2,32 +2,10 @@ package baseball;
 
 record Score(int strike, int ball) {
     static Score of(int[] answer, int[] guess) {
-        validateDigits("answer", answer);
-        validateDigits("guess", guess);
-
-        int[] positionByDigit = new int[BaseballRules.DIGIT_RANGE];
-
-        for (int i = 0; i < answer.length; i++) {
-            positionByDigit[answer[i]] = i + 1;
-        }
-
-        int strike = 0;
-        int ball = 0;
-
-        for (int i = 0; i < guess.length; i++) {
-            int answerPosition = positionByDigit[guess[i]];
-
-            if (answerPosition == i + 1) {
-                strike++;
-            } else if (answerPosition != 0) {
-                ball++;
-            }
-        }
-
-        return new Score(strike, ball);
+        return new ScoreEvaluator(answer).evaluate(guess);
     }
 
-    private static void validateDigits(String name, int[] digits) {
+    static void validateDigits(String name, int[] digits) {
         if (digits == null) {
             throw new IllegalArgumentException(name + " must not be null");
         }

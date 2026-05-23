@@ -5,8 +5,6 @@ import java.util.concurrent.ThreadLocalRandom;
 final class RandomAnswerGenerator implements AnswerGenerator {
     @Override
     public int[] create() {
-        BaseballRules.validate();
-
         int[] answer = new int[BaseballRules.DIGIT_COUNT];
         boolean[] used = new boolean[BaseballRules.DIGIT_RANGE];
         ThreadLocalRandom random = ThreadLocalRandom.current();

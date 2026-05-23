@@ -13,7 +13,7 @@ final class BaseballMessagesTest {
     }
 
     private void formatsWinResult() {
-        String message = String.format(BaseballMessages.WIN_RESULT, 2);
+        String message = String.format(BaseballMessages.WIN_RESULT, BaseballRules.DIGIT_COUNT, 2);
         TestSupport.assertEquals("3 strikes. You got it in 2 attempt(s).\n", normalizeLineSeparators(message));
     }
 

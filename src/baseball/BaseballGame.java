@@ -5,60 +5,66 @@ import java.util.Objects;
 import java.util.Scanner;
 
 final class BaseballGame {
-    private final Scanner scanner;
-    private final PrintStream out;
+    private final GameInput input;
+    private final GameOutput output;
     private final AnswerGenerator answerGenerator;
     private final GuessParser guessParser;
 
     BaseballGame(Scanner scanner) {
-        this(scanner, System.out, new RandomAnswerGenerator(), new GuessParser());
+        this(new ScannerGameInput(scanner), new PrintStreamGameOutput(System.out), new RandomAnswerGenerator(), new GuessParser());
     }
 
     BaseballGame(Scanner scanner, PrintStream out, AnswerGenerator answerGenerator, GuessParser guessParser) {
-        this.scanner = Objects.requireNonNull(scanner, "scanner must not be null");
-        this.out = Objects.requireNonNull(out, "out must not be null");
+        this(new ScannerGameInput(scanner), new PrintStreamGameOutput(out), answerGenerator, guessParser);
+    }
+
+    BaseballGame(GameInput input, GameOutput output, AnswerGenerator answerGenerator, GuessParser guessParser) {
+        BaseballRules.validate();
+        this.input = Objects.requireNonNull(input, "input must not be null");
+        this.output = Objects.requireNonNull(output, "output must not be null");
         this.answerGenerator = Objects.requireNonNull(answerGenerator, "answerGenerator must not be null");
         this.guessParser = Objects.requireNonNull(guessParser, "guessParser must not be null");
     }
 
     void play() {
         int[] answer = answerGenerator.create();
+        ScoreEvaluator scoreEvaluator = new ScoreEvaluator(answer);
         int attempts = 0;
 
-        out.println(BaseballMessages.START);
-        out.println(BaseballRules.INPUT_GUIDE);
+        output.println(BaseballMessages.START);
+        output.println(BaseballMessages.INPUT_GUIDE);
 
         while (true) {
-            out.print(BaseballMessages.PROMPT);
+            output.print(BaseballMessages.PROMPT);
 
-            if (!scanner.hasNextLine()) {
-                out.println();
+            if (!input.hasNextLine()) {
+                output.println("");
                 return;
             }
 
-            String input = scanner.nextLine().trim();
-            if (BaseballCommands.isQuit(input)) {
-                out.printf(BaseballMessages.QUIT_RESULT, formatDigits(answer));
+            String line = input.nextLine().trim();
+            if (BaseballCommands.isQuit(line)) {
+                output.printf(BaseballMessages.QUIT_RESULT, formatDigits(answer));
                 return;
             }
 
             int[] guess;
             try {
-                guess = guessParser.parse(input);
+                guess = guessParser.parse(line);
             } catch (IllegalArgumentException e) {
-                out.println(e.getMessage());
+                output.println(e.getMessage());
                 continue;
             }
 
             attempts++;
-            Score result = Score.of(answer, guess);
+            Score result = scoreEvaluator.evaluate(guess);
 
             if (result.isWin()) {
-                out.printf(BaseballMessages.WIN_RESULT, attempts);
+                output.printf(BaseballMessages.WIN_RESULT, BaseballRules.DIGIT_COUNT, attempts);
                 return;
             }
 
-            out.println(result);
+            output.println(result.toString());
         }
     }
 

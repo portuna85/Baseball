@@ -12,21 +12,25 @@ public final class TestRunner {
 
         run("GuessParserTest", () -> new GuessParserTest().run(), failures);
         run("ScoreTest", () -> new ScoreTest().run(), failures);
+        run("ScoreEvaluatorTest", () -> new ScoreEvaluatorTest().run(), failures);
         run("BaseballRulesTest", () -> new BaseballRulesTest().run(), failures);
         run("BaseballCommandsTest", () -> new BaseballCommandsTest().run(), failures);
         run("BaseballMessagesTest", () -> new BaseballMessagesTest().run(), failures);
         run("RandomAnswerGeneratorTest", () -> new RandomAnswerGeneratorTest().run(), failures);
         run("BaseballGameTest", () -> new BaseballGameTest().run(), failures);
+        int total = 8;
+        int failed = failures.size();
+        int passed = total - failed;
 
         if (!failures.isEmpty()) {
-            System.err.println("FAILED: " + failures.size());
+            System.err.println("PASSED: " + passed + ", FAILED: " + failed);
             for (String failure : failures) {
                 System.err.println(" - " + failure);
             }
             System.exit(1);
         }
 
-        System.out.println("PASSED: all tests");
+        System.out.println("PASSED: " + passed + ", FAILED: " + failed);
     }
 
     private static void run(String name, TestSupport.ThrowingRunnable test, List<String> failures) {

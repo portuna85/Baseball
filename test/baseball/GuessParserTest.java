@@ -10,12 +10,16 @@ final class GuessParserTest {
         parsesLeadingAndTrailingSpaces();
         parsesCommaSeparatedDigits();
         parsesMixedSeparators();
-        parsesTrailingComma();
+        rejectsTrailingComma();
+        rejectsLeadingComma();
+        rejectsRepeatedComma();
+        rejectsRepeatedCommaWithSpace();
         rejectsEmptyInput();
         rejectsTooFewDigits();
         rejectsTooManyDigits();
         rejectsDuplicateDigits();
-        rejectsNonDigit();
+        rejectsNonDigitToken();
+        rejectsCompactNonDigitWithDigitErrorMessage();
         rejectsFullWidthDigits();
         rejectsMultiCharToken();
         rejectsNullInput();
@@ -45,39 +49,64 @@ final class GuessParserTest {
         TestSupport.assertArrayEquals(new int[]{1, 2, 3}, parser.parse("1, 2 3"));
     }
 
-    private void parsesTrailingComma() {
-        TestSupport.assertArrayEquals(new int[]{1, 2, 3}, parser.parse("1,2,3,"));
+    private void rejectsTrailingComma() {
+        assertIllegalArgMessage(BaseballMessages.INPUT_GUIDE, "1,2,3,");
+    }
+
+    private void rejectsLeadingComma() {
+        assertIllegalArgMessage(BaseballMessages.INPUT_GUIDE, ",1,2,3");
+    }
+
+    private void rejectsRepeatedComma() {
+        assertIllegalArgMessage(BaseballMessages.INPUT_GUIDE, "1,,2,3");
+    }
+
+    private void rejectsRepeatedCommaWithSpace() {
+        assertIllegalArgMessage(BaseballMessages.INPUT_GUIDE, "1, ,2,3");
     }
 
     private void rejectsEmptyInput() {
-        TestSupport.assertThrows(IllegalArgumentException.class, () -> parser.parse(""));
+        assertIllegalArgMessage(BaseballMessages.INPUT_GUIDE, "");
     }
 
     private void rejectsTooFewDigits() {
-        TestSupport.assertThrows(IllegalArgumentException.class, () -> parser.parse("12"));
+        assertIllegalArgMessage(BaseballMessages.INPUT_GUIDE, "12");
     }
 
     private void rejectsTooManyDigits() {
-        TestSupport.assertThrows(IllegalArgumentException.class, () -> parser.parse("1234"));
+        assertIllegalArgMessage(BaseballMessages.INPUT_GUIDE, "1234");
     }
 
     private void rejectsDuplicateDigits() {
-        TestSupport.assertThrows(IllegalArgumentException.class, () -> parser.parse("112"));
+        assertIllegalArgMessage(BaseballMessages.DUPLICATE_ERROR, "112");
     }
 
-    private void rejectsNonDigit() {
-        TestSupport.assertThrows(IllegalArgumentException.class, () -> parser.parse("1,a,3"));
+    private void rejectsNonDigitToken() {
+        assertIllegalArgMessage(BaseballMessages.DIGIT_ERROR, "1,a,3");
+    }
+
+    private void rejectsCompactNonDigitWithDigitErrorMessage() {
+        assertIllegalArgMessage(BaseballMessages.DIGIT_ERROR, "12a");
     }
 
     private void rejectsFullWidthDigits() {
-        TestSupport.assertThrows(IllegalArgumentException.class, () -> parser.parse("１ ２ ３"));
+        assertIllegalArgMessage(BaseballMessages.DIGIT_ERROR, "\uFF11\uFF12\uFF13");
     }
 
     private void rejectsMultiCharToken() {
-        TestSupport.assertThrows(IllegalArgumentException.class, () -> parser.parse("10 2 3"));
+        assertIllegalArgMessage(BaseballMessages.DIGIT_ERROR, "10 2 3");
     }
 
     private void rejectsNullInput() {
         TestSupport.assertThrows(NullPointerException.class, () -> parser.parse(null));
+    }
+
+    private void assertIllegalArgMessage(String expectedMessage, String input) {
+        try {
+            parser.parse(input);
+            throw new AssertionError("expected IllegalArgumentException for input=" + input);
+        } catch (IllegalArgumentException e) {
+            TestSupport.assertEquals(expectedMessage, e.getMessage());
+        }
     }
 }
